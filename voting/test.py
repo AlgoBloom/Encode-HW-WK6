@@ -106,7 +106,12 @@ class TestContract(unittest.TestCase):
                 TestContract.algod_client, account.address_from_private_key(creator_private_key), TestContract.app_index
             )
         
+        # assertions for state after app creation
         self.assertEqual(global_state['VoteBegin'], voteBegin)
+        self.assertEqual(global_state['VoteEnd'], voteEnd)
+        self.assertEqual(global_state['RegBegin'], regBegin)
+        self.assertEqual(global_state['RegEnd'], regEnd)
+        self.assertEqual(global_state['VotingToken'], voting_asa)
 
 def tearDownClass(self) -> None:
     return super().tearDown()
