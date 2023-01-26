@@ -30,7 +30,7 @@ class TestContract(unittest.TestCase):
     
     #Methods for test cases must start with test
     def test_deploy_app(self):
-        amt = 3000000
+        amt = 1000000
         fund_new_acct(TestContract.algod_client, TestContract.new_acct_addr, amt, TestContract.funding_acct_mnemonic)    
 
         print("Funded {amt} to new account for the purpose of deploying contract".format(amt = amt))
