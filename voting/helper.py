@@ -5,7 +5,18 @@ from algosdk import account, mnemonic
 from algosdk.v2client import algod
 from pyteal import compileTeal, Mode
 from contracts import approval_program, clear_state_program
-
+from util import *
+import json
+import base64
+from util import *
+from typing import Tuple, List
+from algosdk import *
+from algosdk.future.transaction import *
+from algosdk.v2client import algod
+from algosdk.future import transaction
+from algosdk import constants
+from algosdk.v2client.algod import AlgodClient
+from algosdk.logic import get_application_address
 
 # user declared algod connection parameters. Node must have EnableDeveloperAPI set to true in its config
 algod_address = "https://testnet-idx.algonode.cloud"
@@ -303,3 +314,47 @@ def clear_app(client, private_key, index):
 # convert 64 bit integer i to byte string
 def intToBytes(i):
     return i.to_bytes(8, "big")
+
+# creates an asa and returns the asset id
+def create_asa(secret_key, my_address):
+    algod_address = "https://testnet-api.algonode.network"
+    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    algod_client = algod.AlgodClient(algod_token, algod_address)
+
+    account_info = algod_client.account_info(my_address)
+    print("Account balance: {} microAlgos".format(account_info.get('amount')) + "\n")
+
+    params = algod_client.suggested_params()
+    txn = AssetConfigTxn(
+        sender=my_address,
+        sp=params,
+        total=1000000,
+        default_frozen=False,
+        unit_name="ENB",
+        asset_name="Encode Bootcamp Token",
+        manager=my_address,
+        reserve=my_address,
+        freeze=my_address,
+        clawback=my_address,
+        url="https://path/to/my/asset/details", 
+        decimals=0)
+    # Sign with secret key of creator
+    stxn = txn.sign(secret_key)
+    # Send the transaction to the network and retrieve the txid.
+    try:
+        txid = algod_client.send_transaction(stxn)
+        print("Signed transaction with txID: {}".format(txid))
+        # Wait for the transaction to be confirmed
+        confirmed_txn = wait_for_confirmation(algod_client, txid, 4)  
+        print("TXID: ", txid)
+        print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))   
+    except Exception as err:
+        print(err)
+    # Retrieve the asset ID of the newly created asset by first
+    # ensuring that the creation transaction was confirmed,
+    # then grabbing the asset id from the transaction.
+    print("Transaction information: {}".format(
+        json.dumps(confirmed_txn, indent=4)))
+    ptx = algod_client.pending_transaction_info(txid)
+    asset_id = ptx["asset-index"]
+    return asset_id

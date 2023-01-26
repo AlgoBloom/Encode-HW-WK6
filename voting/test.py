@@ -31,7 +31,8 @@ class TestContract(unittest.TestCase):
     #Methods for test cases must start with test
     def test_deploy_app(self):
         amt = 1000000
-        fund_new_acct(TestContract.algod_client, TestContract.new_acct_addr, amt, TestContract.funding_acct_mnemonic)    
+        fund_new_acct(TestContract.algod_client, TestContract.new_acct_addr, amt, TestContract.funding_acct_mnemonic)   
+        voting_asa = create_asa(TestContract.new_acct_priv_key, TestContract.new_acct_addr) 
 
         print("Funded {amt} to new account for the purpose of deploying contract".format(amt = amt))
 
@@ -41,7 +42,7 @@ class TestContract(unittest.TestCase):
         local_ints = 0
         local_bytes = 1
         global_ints = (
-            6  # 4 for setup + 20 for choices. Use a larger number for more choices.
+            6
         )
         global_bytes = 2
         global_schema = transaction.StateSchema(global_ints, global_bytes)
@@ -73,6 +74,7 @@ class TestContract(unittest.TestCase):
         regEnd = regBegin + 10
         voteBegin = regEnd + 1
         voteEnd = voteBegin + 10
+        voting_asa = voting_asa
 
         print(f"Registration rounds: {regBegin} to {regEnd}")
         print(f"Vote rounds: {voteBegin} to {voteEnd}")
@@ -83,6 +85,8 @@ class TestContract(unittest.TestCase):
             intToBytes(regEnd),
             intToBytes(voteBegin),
             intToBytes(voteEnd),
+            # need to store the voting token address in global state
+            intToBytes(voting_asa),
         ]
         
         # create new application
