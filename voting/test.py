@@ -2,14 +2,15 @@ from helper import *
 from algosdk.future import transaction
 from algosdk import account, mnemonic
 from algosdk.v2client import algod, indexer
-from keys import funding_acct, funding_acct_mnemonic
 
 import unittest
+
+funding_acct = "BSTDOSCCPYN3AZNRGBX3VO4XBEAH2TKCGKYZPMYIIRNYAFHJZGNASJMOEI"
+funding_acct_mnemonic = "comfort anxiety nuclear citizen below airport leisure smooth public major rose worth mother stamp tribe bitter medal cotton wink wealth like wagon aware abandon witness"
 
 algod_address = "https://testnet-api.algonode.cloud"
 indexer_address = "https://testnet-idx.algonode.cloud"
 # user declared account mnemonics
-
 
 unittest.TestLoader.sortTestMethodsUsing = None
 
