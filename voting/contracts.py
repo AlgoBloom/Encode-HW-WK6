@@ -5,13 +5,13 @@ def approval_program():
     on_creation = Seq(
         [
             App.globalPut(Bytes("Creator"), Txn.sender()),
-            Assert(Txn.application_args.length() == Int(5)),
+            Assert(Txn.application_args.length() == Int(4)),
             App.globalPut(Bytes("RegBegin"), Btoi(Txn.application_args[0])),
             App.globalPut(Bytes("RegEnd"), Btoi(Txn.application_args[1])),
             App.globalPut(Bytes("VoteBegin"), Btoi(Txn.application_args[2])),
             App.globalPut(Bytes("VoteEnd"), Btoi(Txn.application_args[3])),
             # adding voting token
-            App.globalPut(Bytes("VotingToken"), Txn.application_args[4]),
+            App.globalPut(Bytes("VotingToken"), Txn.assets[0]),
             App.globalPut(Bytes("YesCount"), Int(0)),
             App.globalPut(Bytes("NoCount"), Int(0)),
             Return(Int(1)),

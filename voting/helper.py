@@ -85,6 +85,7 @@ def create_app(
     global_schema,
     local_schema,
     app_args,
+    assets,
 ):
     # define sender as creator
     sender = account.address_from_private_key(private_key)
@@ -108,6 +109,7 @@ def create_app(
         global_schema,
         local_schema,
         app_args,
+        foreign_assets=assets,
     )
 
     # sign transaction
@@ -318,7 +320,7 @@ def intToBytes(i):
 # creates an asa and returns the asset id
 def create_asa(secret_key, my_address):
     algod_address = "https://testnet-api.algonode.network"
-    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    algod_token = ""
     algod_client = algod.AlgodClient(algod_token, algod_address)
 
     account_info = algod_client.account_info(my_address)
@@ -341,20 +343,23 @@ def create_asa(secret_key, my_address):
     # Sign with secret key of creator
     stxn = txn.sign(secret_key)
     # Send the transaction to the network and retrieve the txid.
+    txid = 0
     try:
         txid = algod_client.send_transaction(stxn)
         print("Signed transaction with txID: {}".format(txid))
         # Wait for the transaction to be confirmed
-        confirmed_txn = wait_for_confirmation(algod_client, txid, 4)  
+        confirmed_txn = wait_for_confirmation(algod_client, txid)  
         print("TXID: ", txid)
         print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))   
     except Exception as err:
+        print(f"This is an error")
         print(err)
     # Retrieve the asset ID of the newly created asset by first
     # ensuring that the creation transaction was confirmed,
     # then grabbing the asset id from the transaction.
-    print("Transaction information: {}".format(
-        json.dumps(confirmed_txn, indent=4)))
+    # print("Transaction information: {}".format(
+    #     json.dumps(confirmed_txn, indent=4)))
     ptx = algod_client.pending_transaction_info(txid)
+    print(ptx)
     asset_id = ptx["asset-index"]
     return asset_id

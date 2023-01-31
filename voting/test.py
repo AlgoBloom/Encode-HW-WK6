@@ -10,6 +10,7 @@ funding_acct_mnemonic = "comfort anxiety nuclear citizen below airport leisure s
 
 algod_address = "https://testnet-api.algonode.cloud"
 indexer_address = "https://testnet-idx.algonode.cloud"
+
 # user declared account mnemonics
 
 unittest.TestLoader.sortTestMethodsUsing = None
@@ -30,11 +31,12 @@ class TestContract(unittest.TestCase):
     
     #Methods for test cases must start with test
     def test_deploy_app(self):
-        amt = 1000000
+        amt = 3000000
         fund_new_acct(TestContract.algod_client, TestContract.new_acct_addr, amt, TestContract.funding_acct_mnemonic)   
-        voting_asa = create_asa(TestContract.new_acct_priv_key, TestContract.new_acct_addr) 
-
         print("Funded {amt} to new account for the purpose of deploying contract".format(amt = amt))
+
+        voting_asa = create_asa(TestContract.new_acct_priv_key, TestContract.new_acct_addr) 
+        print(f"Deployed voting Fungible Token with ASA id:{voting_asa}")
 
         creator_private_key = get_private_key_from_mnemonic(TestContract.new_acct_mnemonic)
 
@@ -42,7 +44,7 @@ class TestContract(unittest.TestCase):
         local_ints = 0
         local_bytes = 1
         global_ints = (
-            6
+            7
         )
         global_bytes = 2
         global_schema = transaction.StateSchema(global_ints, global_bytes)
@@ -52,7 +54,7 @@ class TestContract(unittest.TestCase):
         approval_program_ast = approval_program()
         # compile program to TEAL assembly
         approval_program_teal = compileTeal(
-            approval_program_ast, mode=Mode.Application, version=6
+            approval_program_ast, mode=Mode.Application, version=5
         )
         # compile program to binary
         approval_program_compiled = compile_program(TestContract.algod_client, approval_program_teal)
@@ -61,7 +63,7 @@ class TestContract(unittest.TestCase):
         clear_state_program_ast = clear_state_program()
         # compile program to TEAL assembly
         clear_state_program_teal = compileTeal(
-            clear_state_program_ast, mode=Mode.Application, version=6
+            clear_state_program_ast, mode=Mode.Application, version=5
         )
         # compile program to binary
         clear_state_program_compiled = compile_program(
@@ -86,7 +88,7 @@ class TestContract(unittest.TestCase):
             intToBytes(voteBegin),
             intToBytes(voteEnd),
             # need to store the voting token address in global state
-            intToBytes(voting_asa),
+            # intToBytes(voting_asa),
         ]
         
         # create new application
@@ -98,6 +100,7 @@ class TestContract(unittest.TestCase):
             global_schema,
             local_schema,
             app_args,
+            [voting_asa],
         )
 
         print("Deployed new app with APP ID: "+str(TestContract.app_index))
