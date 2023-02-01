@@ -30,7 +30,7 @@ class TestContract(unittest.TestCase):
         cls.app_index = 0
     
     #Methods for test cases must start with test
-    def test_deploy_app(self):
+    def test_app(self):
         amt = 3000000
         fund_new_acct(TestContract.algod_client, TestContract.new_acct_addr, amt, TestContract.funding_acct_mnemonic)   
         print("Funded {amt} to new account for the purpose of deploying contract".format(amt = amt))
@@ -75,7 +75,7 @@ class TestContract(unittest.TestCase):
         regBegin = status["last-round"] + 10
         regEnd = regBegin + 10
         voteBegin = regEnd + 1
-        voteEnd = voteBegin + 10
+        voteEnd = voteBegin + 10000
         voting_asa = voting_asa
 
         print(f"Registration rounds: {regBegin} to {regEnd}")
@@ -115,6 +115,22 @@ class TestContract(unittest.TestCase):
         self.assertEqual(global_state['RegBegin'], regBegin)
         self.assertEqual(global_state['RegEnd'], regEnd)
         self.assertEqual(global_state['VotingToken'], voting_asa)
+
+        vote_app_args = [
+            bytes('Vote', 'utf-8'),
+            bytes('Yes', 'utf-8'),
+        ]
+
+        ###
+        TestContract.app_index = call_app(
+            TestContract.algod_client,
+            creator_private_key,
+            TestContract.app_index,
+            vote_app_args,
+            # [voting_asa],
+        )
+
+
 
 def tearDownClass(self) -> None:
     return super().tearDown()
