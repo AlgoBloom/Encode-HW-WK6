@@ -49,6 +49,7 @@ def approval_program():
         Assert(Global.round() >= App.globalGet(Bytes("RegBegin"))),
         Assert(Global.round() <= App.globalGet(Bytes("RegEnd"))),
         App.localPut(Txn.sender(), Bytes("vote"), Bytes("")),
+        Return(Int(1)),
     )
 
     on_vote = Seq(
@@ -94,6 +95,8 @@ def clear_state_program():
     # get_vote_of_sender = App.localGetEx(Int(0), App.id(), Bytes("voted"))
     program = Seq(
         [
+            get_asset_holding,
+            Assert(get_asset_holding.hasValue()),
             If(App.localGet(Int(0), Bytes("vote")) == Bytes("Yes"))
             .Then(App.globalPut(Bytes("YesCount"), App.globalGet(Bytes("YesCount")) - get_asset_holding.value()))
             .ElseIf(App.localGet(Int(0), Bytes("vote")) == Bytes("No"))
@@ -110,9 +113,9 @@ def clear_state_program():
 
 if __name__ == "__main__":
     with open("vote_approval.teal", "w") as f:
-        compiled = compileTeal(approval_program(), mode=Mode.Application, version=2)
+        compiled = compileTeal(approval_program(), mode=Mode.Application, version=5)
         f.write(compiled)
 
     with open("vote_clear_state.teal", "w") as f:
-        compiled = compileTeal(clear_state_program(), mode=Mode.Application, version=2)
+        compiled = compileTeal(clear_state_program(), mode=Mode.Application, version=5)
         f.write(compiled)
