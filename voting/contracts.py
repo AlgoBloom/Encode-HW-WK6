@@ -37,7 +37,7 @@ def approval_program():
                 If(Txn.application_args[1] == Bytes("Yes"))
                 .Then(App.globalPut(Bytes("YesCount"), App.globalGet(Bytes("YesCount")) - get_asset_holding.value()))
                 .ElseIf(Txn.application_args[1] == Bytes("No"))
-                .Then(App.globalPut(Bytes("NoCount"), App.globalGet(Bytes("NoCount")) + get_asset_holding.value()))
+                .Then(App.globalPut(Bytes("NoCount"), App.globalGet(Bytes("NoCount")) - get_asset_holding.value()))
                 .ElseIf(Txn.application_args[1] == Bytes("Abstain"))
                 .Then(Return(Int(1))),
             ),
@@ -46,9 +46,9 @@ def approval_program():
     )
 
     on_register = Seq(
-        Assert(Global.round() >= App.globalGet(Bytes("RegBegin"))),
-        Assert(Global.round() <= App.globalGet(Bytes("RegEnd"))),
-        App.localPut(Txn.sender(), Bytes("vote"), Bytes("")),
+        # Assert(Global.round() >= App.globalGet(Bytes("RegBegin"))),
+        # Assert(Global.round() <= App.globalGet(Bytes("RegEnd"))),
+        App.localPut(Int(0), Bytes("vote"), Bytes("")),
         Return(Int(1)),
     )
 
@@ -72,8 +72,9 @@ def approval_program():
             .ElseIf(App.localGet(Int(0), Bytes("vote")) == Bytes("No"))
             .Then(App.globalPut(Bytes("NoCount"), App.globalGet(Bytes("NoCount")) + get_asset_holding.value()))
             .ElseIf(App.localGet(Int(0), Bytes("vote")) == Bytes("Abstain"))
-            .Then(Return(Int(1))),
-            App.localPut(Int(0), Bytes("voted"), Int(1)),
+            .Then(Return(Int(1)))
+            .Else(Return(Int(1))),
+            # App.localPut(Int(0), Bytes("voted"), Int(1)),
             Return(Int(1)),
         ]
     )
@@ -84,7 +85,7 @@ def approval_program():
         [Txn.on_completion() == OnComplete.UpdateApplication, Return(is_creator)],
         [Txn.on_completion() == OnComplete.CloseOut, on_closeout],
         [Txn.on_completion() == OnComplete.OptIn, on_register],
-        [Txn.application_args[0] == Bytes("vote"), on_vote],
+        [Txn.application_args[0] == Bytes("voting"), on_vote],
     )
 
     return program
@@ -102,8 +103,9 @@ def clear_state_program():
             .ElseIf(App.localGet(Int(0), Bytes("vote")) == Bytes("No"))
             .Then(App.globalPut(Bytes("NoCount"), App.globalGet(Bytes("NoCount")) - get_asset_holding.value()))
             .ElseIf(App.localGet(Int(0), Bytes("vote")) == Bytes("Abstain"))
-            .Then(Return(Int(1))),
-            App.localPut(Int(0), Bytes("voted"), Int(0)),
+            .Then(Return(Int(1)))
+            .Else(Return(Int(1))),
+            # App.localPut(Int(0), Bytes("voted"), Int(0)),
             Return(Int(1)),
         ]
     )

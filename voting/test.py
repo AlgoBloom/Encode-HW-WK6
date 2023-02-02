@@ -31,7 +31,7 @@ class TestContract(unittest.TestCase):
     
     #Methods for test cases must start with test
     def test_app(self):
-        amt = 3000000
+        amt = 1000000
         fund_new_acct(TestContract.algod_client, TestContract.new_acct_addr, amt, TestContract.funding_acct_mnemonic)   
         print("Funded {amt} to new account for the purpose of deploying contract".format(amt = amt))
 
@@ -41,8 +41,8 @@ class TestContract(unittest.TestCase):
         creator_private_key = get_private_key_from_mnemonic(TestContract.new_acct_mnemonic)
 
         # declare application state storage (immutable)
-        local_ints = 0
-        local_bytes = 1
+        local_ints = 2
+        local_bytes = 2
         global_ints = (
             7
         )
@@ -72,10 +72,10 @@ class TestContract(unittest.TestCase):
 
         # configure registration and voting period
         status = TestContract.algod_client.status()
-        regBegin = status["last-round"] + 10
-        regEnd = regBegin + 10
-        voteBegin = regEnd + 1
-        voteEnd = voteBegin + 10000
+        regBegin = status["last-round"]
+        regEnd = regBegin + 100000
+        voteBegin = status["last-round"]
+        voteEnd = voteBegin + 100000
         voting_asa = voting_asa
 
         print(f"Registration rounds: {regBegin} to {regEnd}")
@@ -103,6 +103,8 @@ class TestContract(unittest.TestCase):
             [voting_asa],
         )
 
+        new_app_id = TestContract.app_index
+
         print("Deployed new app with APP ID: "+str(TestContract.app_index))
 
         global_state = read_global_state(
@@ -116,20 +118,29 @@ class TestContract(unittest.TestCase):
         self.assertEqual(global_state['RegEnd'], regEnd)
         self.assertEqual(global_state['VotingToken'], voting_asa)
 
-        vote_app_args = [
-            bytes('vote', 'utf-8'),
-            bytes('Yes', 'utf-8'),
-        ]
-
-        ###
-        TestContract.app_index = call_app(
+        #### TEST OPT-IN ####
+        TestContract.app_index = opt_in_app(
             TestContract.algod_client,
             creator_private_key,
             TestContract.app_index,
+        )
+
+        #### TEST VOTE ####
+
+        print(TestContract.app_index)
+
+        vote_app_args = [
+            bytes('voting', 'utf-8'),
+            bytes('Yes', 'utf-8'),
+        ]
+
+        TestContract.app_index = call_app(
+            TestContract.algod_client,
+            creator_private_key,
+            new_app_id,
             vote_app_args,
             # [voting_asa],
         )
-
 
 
 def tearDownClass(self) -> None:

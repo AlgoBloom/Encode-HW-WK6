@@ -170,7 +170,7 @@ def call_app(client, private_key, index, app_args):
     params = client.suggested_params()
     # comment out the next two (2) lines to use suggested fees
     params.flat_fee = True
-    params.fee = 1000
+    params.fee = 5000
 
     # create unsigned transaction
     txn = transaction.ApplicationNoOpTxn(sender, params, index, app_args)
