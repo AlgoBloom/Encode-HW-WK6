@@ -139,7 +139,7 @@ class TestContract(unittest.TestCase):
             creator_private_key,
             new_app_id,
             vote_app_args,
-            # [voting_asa],
+            [voting_asa],
         )
 
 

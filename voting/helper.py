@@ -161,7 +161,7 @@ def opt_in_app(client, private_key, index):
 
 
 # call application
-def call_app(client, private_key, index, app_args):
+def call_app(client, private_key, index, app_args, assets):
     # declare sender
     sender = account.address_from_private_key(private_key)
     print("Call from account:", sender)
@@ -173,7 +173,7 @@ def call_app(client, private_key, index, app_args):
     params.fee = 5000
 
     # create unsigned transaction
-    txn = transaction.ApplicationNoOpTxn(sender, params, index, app_args)
+    txn = transaction.ApplicationNoOpTxn(sender, params, index, app_args, foreign_assets=assets)
 
     # sign transaction
     signed_txn = txn.sign(private_key)
