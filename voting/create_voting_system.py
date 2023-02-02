@@ -60,7 +60,7 @@ def createApp(
     regBegin = status["last-round"] + 10
     regEnd = regBegin + 10
     voteBegin = regEnd + 1
-    voteEnd = voteBegin + 10
+    voteEnd = voteBegin + 1000000
 
     app_args = [
         intToBytes(regBegin),

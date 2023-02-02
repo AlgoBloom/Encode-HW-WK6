@@ -2,6 +2,7 @@ from helper import *
 from algosdk.future import transaction
 from algosdk import account, mnemonic
 from algosdk.v2client import algod, indexer
+import time
 
 import unittest
 
@@ -117,6 +118,8 @@ class TestContract(unittest.TestCase):
         self.assertEqual(global_state['RegBegin'], regBegin)
         self.assertEqual(global_state['RegEnd'], regEnd)
         self.assertEqual(global_state['VotingToken'], voting_asa)
+        self.assertEqual(global_state['NoCount'], 0)
+        self.assertEqual(global_state['YesCount'], 0)
 
         #### TEST OPT-IN ####
         TestContract.app_index = opt_in_app(
@@ -141,6 +144,13 @@ class TestContract(unittest.TestCase):
             vote_app_args,
             [voting_asa],
         )
+
+        global_state = read_global_state(
+                TestContract.algod_client, account.address_from_private_key(creator_private_key), new_app_id
+            )
+
+        self.assertEqual(global_state['NoCount'], 0)
+        self.assertEqual(global_state['YesCount'], 1000000)
 
 
 def tearDownClass(self) -> None:
