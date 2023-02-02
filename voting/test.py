@@ -128,9 +128,7 @@ class TestContract(unittest.TestCase):
             TestContract.app_index,
         )
 
-        #### TEST VOTE ####
-
-        print(TestContract.app_index)
+        #### TEST YES VOTE ####
 
         vote_app_args = [
             bytes('voting', 'utf-8'),
@@ -150,6 +148,30 @@ class TestContract(unittest.TestCase):
             )
 
         self.assertEqual(global_state['NoCount'], 0)
+        self.assertEqual(global_state['YesCount'], 1000000)
+
+        #### TEST NO VOTE ####
+
+        print(TestContract.app_index)
+
+        vote_app_args = [
+            bytes('voting', 'utf-8'),
+            bytes('No', 'utf-8'),
+        ]
+
+        TestContract.app_index = call_app(
+            TestContract.algod_client,
+            creator_private_key,
+            new_app_id,
+            vote_app_args,
+            [voting_asa],
+        )
+
+        global_state = read_global_state(
+                TestContract.algod_client, account.address_from_private_key(creator_private_key), new_app_id
+            )
+
+        self.assertEqual(global_state['NoCount'], 1000000)
         self.assertEqual(global_state['YesCount'], 1000000)
 
 
