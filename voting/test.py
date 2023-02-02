@@ -117,7 +117,7 @@ class TestContract(unittest.TestCase):
         self.assertEqual(global_state['VotingToken'], voting_asa)
 
         vote_app_args = [
-            bytes('Vote', 'utf-8'),
+            bytes('vote', 'utf-8'),
             bytes('Yes', 'utf-8'),
         ]
 
